@@ -9,8 +9,8 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 
 <Base>
     <Header />
-    <main class="flex justify-center items-center w-full py-6 px-4">
-        <article class="prose prose-invert w-screen md:w-[720px]">
+    <main class="flex justify-center items-center w-full py-6 px-6">
+        <article class="prose prose-invert text-justify w-full md:w-[720px]">
             <slot />
         </article>
     </main>
