@@ -1,0 +1,15 @@
+---
+import HeaderLink from './HeaderLink.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<header class="bg-black py-4 border-gray-800 border-b w-full">
+	<nav class="flex flex-col items-center gap-4">
+		<a class="a:not font-bold text-3xl" href="/">{SITE_TITLE}</a>
+		<div class="flex items-center gap-8">
+			<HeaderLink href="/">Home</HeaderLink>
+			<HeaderLink href="/diagrams">Diagrams</HeaderLink>
+			<HeaderLink href="/about">About</HeaderLink>
+		</div>
+	</nav>
+</header>
