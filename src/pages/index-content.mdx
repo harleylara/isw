@@ -10,12 +10,731 @@ Brief description of your task and how you went about to solve it.
 
 Based on the literature (survey articles, books, journals, conference proceedings), which you have found explain and discuss how the scientific subject which you have been investigating is embedded in the superior field, e.g. learning by experimentation is sub field of machine learning ... What are neighboring disciplines (inductive learning, one-shot learning, reinforcement learning, etc)? What are the special aspects which are addressed in the subject and how do they distinguish the subject from neighboring subjects/disciplines? What are the typical assumptions made in the research on the subject? What is the methodology used in the field? (one page)
 
-# 3 Description of the subject
+# 3 Description of the subject - Deep Learning in the context of robotics
 
 Based on the literature (survey articles, books, journals, conference proceedings), which you have found explain and discuss how the scientific subject which you have been investigating is decomposed into different subfields and/or aspects and/or problem areas (e.g. learning by experimentation: cognitive/developmental psychology, epistemology, theory of experimentation, optimal design and evaluation of experiments, etc. Explain for each subfield/aspect/problem area why you think that is is of crucial importance to the subject which you have been investigating. Explain why you think that the set of subfields/aspects/problems which you have identified in fact covers the whole subject. (one page)
 
+- deep reinforcement learning: divide them into value-based, policy-based, and actor–critic algorithms.
+    - uncertainty in reward and goal specification
+
+- locomotion and manipulation challenges: high dimensionality,
+
+Harley's note: Add here a small resume of the next seccion what they cover.
+
+## Robot Design
+
+### Multimodal Sensors Actuators
+
+" 'multimodal' means to combine different channels
+of information simultaneously to understand our surroundings."
+
+- Deep learning for video processing;
+- Multi-modal representation learning;
+- Unified multi-modal pre-training;
+- Multi-modal metric learning;
+- Multi-modal medical imaging;
+
+
+Multimodal sensors fusion:
+- Audio-visual speech recognition (AVSR): [Multimodal Sensor-Input Architecture with Deep Learning for Audio-Visual Speech Recognition in Wild].
+
+
+## Locomotion
+
+In robotics system there are several ways to move the platform from a point "a" to "b", from a taxonomical point of view locomotion can be roughly divided through the medium by which the robotic system moves, this can be essentially air, land and water, from which it can be expanded into mechanical-structural categories [Yim M (1994) Locomotion with a Unit-Modular Reconfigurable Robot] [A review of robotics taxonomies in terms of form and structure], these categories correspond to legged, wheeled and exoskeletons in terms of land as a means to move.
+
+With the advancement of deep learning and deep reinforcement learning methods, it has been possible to develop locomotion models that better adapt to the dynamic nature of the environments, without the costs involved in classical approaches that require a considerable human effort of fine tuning.
+
+zero-shot transfer and learn policies
+
+- allowing robots to do hiking trail over 2.2 km without a single fall [Learning robust perceptive locomotion for quadrupedal robots in the wild.]
+- legged and wheeled in the same robotic platform [Advanced Skills through Multiple Adversarial Motion Priors in Reinforcement Learning]
+- privileged learning research achieves results that extend the state of the art in some locomotion tasks.
+    - it may not generalize well to situations that are different from those encountered by the expert.
+
+## Manipulation
+
+- Model-free deep imitation reinforcement learning-based methods does not require pre-defined annotations or rule-based manipulation skills.
+
+3D registration:
+
+Hardware-centric:
+
+Learning by demonstration:
+- [Robot peels banana with goal-conditioned dual-action deep imitation learning](https://www.youtube.com/watch?v=rYrSQ_sF3fQ)
+- [Robot threads needle by using deep imitation learning](https://www.youtube.com/watch?v=ytpChcFqD5g)
+
+Deep Reinforcement Learning:
+
+
+- without human intervention, and without access to privileged information, such as maps, objects positions, or a global view of the environment [Fully Autonomous Real-World Reinforcement Learning with Applications to Mobile Manipulation]
+
+challenges:
+- simulators may not always accurately reflect reality
+- Rubik’s cube took 4 moth for training.
+- Highly dependent of data
+
+
 # 4 Annotated Bibliography - [insert topic here]
 In this section you should establish a subsection for each subfield/aspect/problem area which you have identified in the foregoing Section ("Description of the subject"). In each of the subsection you give a brief overview of the subfield list the annotated bibliography, i.e. all the papers which you found for this subfield, where each entry in this annotated bibliography should consist of the reference itself and a brief summary of the content of the paper. (as many pages as it takes)
+
+## Locomotion
+
+---
+My template
+
+- **Authors**
+- **Keywords**
+- **Abstract**
+- **Proposed approach**
+- **Method(s) for evaluating approach**
+- **Contributions**
+    - **Conclusions**
+    - **Results**
+- **Challenges**
+- **Personal Notes**
+    - **Relevance**
+    - **Benefits**
+    - **Discussion compared to other methods**
+    - **Open-ended research questions**
+
+---
+### Learning to Walk in Minutes Using Massively Parallel Deep Reinforcement Learning
+
+**Keywords**: Reinforcement Learning, Legged Robots, Sim-to-real.
+
+**Abstract**: In this work, we present and study a training set-up that achieves fast policy generation for real-world robotic tasks by using massive parallelism on a single workstation GPU. We analyze and discuss the impact of different training algorithm components in the massively parallel regime on the final policy performance and training times. In addition, we present a novel game-inspired curriculum that is well suited for training with thousands of simulated robots in parallel. We evaluate the approach by training the quadrupedal robot ANYmal to walk on challenging terrain. The parallel approach allows training policies for flat terrain in under four minutes, and in twenty minutes for uneven terrain. This represents a speedup of multiple orders of magnitude compared to previous work. Finally, we transfer the policies to the real robot to validate the approach. We open-source our training code to help accelerate further research in the field of learned legged locomotion: https://leggedrobotics.github.io/legged_gym/.
+
+**Proposed approach**
+
+- end-to-end data collection and policy updates
+- Proximal Policy Optimization (PPO) algorithm
+
+- Batch size "B" determinado por: B = n_robots * n_steps 
+    - n_steps: >25, fewer make the algorithm struggles to converge to a optimal solution.
+- maximum episode length before reset: 20s
+- mini-batch size: they found that having mini-batch sizes much larger than what is usually considered best practice is beneficial for our massively parallel use case.
+- The reward policy (check tree):
+    - penalize joint torques, joint accelerations, joint target changes, and collisions
+    - Contacts with the knees, shanks or between the feet and a vertical surface are considered collisions
+    - while contacts with the base are considered crashes and lead to resets
+
+- use a neural network to compute torques from joint position commands.
+
+**Method(s) for evaluating approach**
+
+- Robotic platform for real world experiments: ANYmal C
+- Robotic platform for simulation experiments: ANYmal C, ANYmal B, Cassie
+
+- Training time vs Policy performance
+- The main parameter was the batch size:
+    - n_robots
+    - n_steps
+
+- Validation
+    - 1. Measure performance in simulation
+    - 2. robustness and traversability tests: command to traverse the most difficult terrain with high forward velocity and measure the success rate
+    - 3. Success was defined as avoiding crashes: nearly 100 % success rate for steps up to 0.2 m, which is the hardest stair difficulty we train on and close to the kinematic limits of our robot.
+    - 4. Transfer to the real robot
+
+**Contributions**
+
+- entrenamiento paralelo ya se habia explorado antes atravez de arquitecturas de redes con CPUs donde cada una ejecutaba una instancia de la simulacion.
+    - averaging the gradients between the different workers
+    - el problema principal es que no reduce el tiempo de entrenamiento
+- the reward function nor the action space has any gait-dependent elements.
+
+- Extrapolable a otros robots, entre ellos ANYmal C (una variacion de ANYmal B), ANYmal B con un brazo robotico y Unitree A1 (todo cuadrupedos).
+
+- game-inspired curriculum
+    - does not require tuning
+    - well suited for the massively parallel regime
+- we find that it is essential to first train the policy on less challenging terrain before progressively increasing the complexity.
+
+    - **Conclusions**
+    - **Results**:
+        - Interestingly, it always converges to a trotting gait,
+        - Learn to walk on flat surfaces in less than 4 minutes, and 20 minutes for uneven terrain.
+
+- hyper-parameter tuning
+- time-consuming
+- allow training in a single GPU workstation
+
+- **Challenges**
+
+- Terrain variability with a single mesh
+- Algoritmos como PPO requiren una collection de datos para actualizar la siguiente policy, la cantidad de datos esta determinado por un "batch size"
+    - to little data: gradient to noisy, not learn effectively.
+    - too much data: repetitive samples, slowing down the overall simulation time.
+- the policy does not have the temporal information of the actuators.
+- Un cambio de robot require de:
+    - ajuste de las ganancias del controlodalor PD
+    - ajuste del penalty de torques en las uniones
+- Para robot bipedal (in this case Cassie) requiere modificacion de la politica de recompensa
+    - encouraging standing on a single foot is necessary to achieve a walking gait.
+
+- Terrain height is produce by LIDar and the noise in it reduce robustness between simulation and reality.
+    - the problem mainly occour at high velocities, (they set it to a maximum value of 0.6 m/s)
+- This approach is affected by imperfect terrain mapping or state estimation drift
+
+- **Personal Notes**
+
+- Still required manual tuning for a trade-off of time and performance.
+- a terrain more representative of real environments and without tiled squares for terrain generation?
+- Esta realmente generalizando ?
+- No se define si la tasa de exito que se muestra en los resultados corresponde unicamente al robot ANYmal B ? 
+    - No hay resultados medidos de la tasa de exito para los otros robot bajo la misma policy y hyper-parameter
+
+
+    - **Relevance**
+    - **Benefits**
+    - **Discussion compared to other methods**
+
+**Open-ended research questions**
+- Cual es el efecto de los hyper-parameter de esta policy entros locomotion, bipedal por ejemplo.
+
+
+---
+### Learning robust perceptive locomotion for quadrupedal robots in the wild.
+
+**Authors**: Takahiro Miki, Joonho Lee, Jemin Hwangbo, Lorenz Wellhausen, Vladlen Koltun, Marco Hutter
+
+**Keywords**:
+
+**Abstract**: Legged robots that can operate autonomously in remote and hazardous environments will greatly increase opportunities for exploration into under-explored areas. Exteroceptive perception is crucial for fast and energyefficient locomotion: perceiving the terrain before making contact with it enables planning and adaptation of the gait ahead of time to maintain speed and stability. However, utilizing exteroceptive perception robustly for locomotion has remained a grand challenge in robotics. Snow, vegetation, and water visually appear as obstacles on which the robot cannot step – or are missing altogether due to high reflectance. Additionally, depth perception can degrade due to difficult lighting, dust, fog, reflective or transparent surfaces, sensor occlusion, and more. For this reason, the most robust and general solutions to legged locomotion to date rely solely on proprioception. This severely limits locomotion speed, because the robot has to physically feel out the terrain before adapting its gait accordingly. Here we present a robust and general solution to integrating exteroceptive and proprioceptive perception for legged locomotion. We leverage an attention-based recurrent encoder that integrates proprioceptive and exteroceptive input. The encoder is trained end-to-end and learns to seamlessly combine the different perception modalities without resorting to heuristics. The result is a legged locomotion controller with high robustness and speed. The controller was tested in a variety of challenging natural and urban environments over multiple seasons and completed an hour-long hike in the Alps in the time recommended for human hikers.
+
+- **Proposed approach**
+
+- present a terrain-aware locomotion controller for quadrupedal robots.
+- incorporating exteroceptive perception.
+- the map its build arround a robot-centric elevation map.
+- The controller is trained via privileged learning
+    - first train a teacher policy via Reinforcement Learning (RL) with full access to privileged information in the form of the ground-truth state of the environment.
+    - then train a student policy that only has access to information that is available in the field on the physical robot. (via imitation learning)
+
+- The use of an internal belief state (blue) that can robustly switch between a exteroceptive to a proprioceptive perception.
+
+
+Deep Reinforcement Learning Pipeline:
+
+1. Privileged agent, learning teaching policy:
+- Follow a random target velocity over randomly generated terrain with random disturbances.
+    - privileged information such as noiseless terrain measurements, ground friction, and the disturbances that were introduced.
+
+2. Student policy:
+- reproduce the teacher policy without the privileged information.
+- belief state to capture unobserved information using a recurrent encoder and outputs an action based on this belief state.
+
+3. Functions Loss:
+- a behavior cloning loss: The behavior cloning loss aims to imitate the teacher policy.
+- a reconstruction loss: The reconstruction loss encourages the encoder to produce an informative internal representation.
+
+4. Deployment:
+- the learned student policy is transfered to the physical robot.
+- This exteroceptive input is combined with proprioceptive sensory data and is given to the neural network, which produces actuator commands.
+
+**Method(s) for evaluating approach**
+
+- Robotic platform for real world experiments: ANYmal C
+
+- Step height vs success rate, their model that use proprioception and exteroception vs a proprioception ONLY baseline.
+    - the baseline success rate dropped at 20 cm step height
+    - the proposed controller reached up to 30.5 cm in height; This was done with environment information to determine the proper leg elevation (exteroception)
+        - after 32 cm, the robot prefered to go side to the obstacle (out of mechanical limits)
+- Maximum speed of locomotion (flat and obstacles) proposed vs baseline
+
+**Contributions**
+
+- elevation map is an abstraction layer between sensors and the locomotion controller this make the methos independent of the depth sensor choice.
+- deploy it on the robot without any fine-tuning nor retraining.
+- the policy handle significant noise, bias, and gaps in the elevation map.
+- traversed challenging natural environments
+- combines the best of both worlds: the speed and efficiency afforded by exteroception and the robustness of proprioception.
+- 1.2 m/s (forward and lateral motion), while the baseline could only achieve 0.6 m/s
+- 3 rad/s while the baseline policy could only turn at 0.6 rad/s
+
+- the state-of-the-art quadrupedal robot Spot from Boston Dynamics requires that a dedicated mode is engaged, and the robot must be properly oriented with respect to the stairs
+
+- **Conclusions**
+
+**Results**:
+
+- 2.2 km hiking trail without a single fall.
+    - inclinations of up to 38%
+    - rocky and wet surfaces
+
+**Challenges**
+
+- misleading incomplete or noisy of the exteroceptive sensor wich introduce severe artifacts in the elevation map.
+- high vegetation that introduce significant noise in the elevation map
+- elevation map construction relies on a classical pose estimation module that is not trained jointly with the rest of the system.
+
+**Personal Notes**:
+
+- Exteroception enabled our controller to traverse challenging environments more successfully and at higher speeds in comparison to pure proprioception.
+- uncertainty information is not exploid in the belief state, this could provide a more careful behavior in case of terrain occlusions.
+- inability to complete locomotion tasks which would require maneuvers very different from normal walking
+    - leg stuck in narrow holes
+    - climbing onto high ledges.
+
+- Can this pipeline transfer with the same capabilities to others locomotion models (bipedal, hexapods, others)
+
+- They use RSLGym, a custom framework develop by Robotics System Lab (RSL) at ETH Zurich to train deep Reinforcement Learning integrated with RaiSim physics engine.
+
+    - **Relevance**
+- **Benefits**
+    - Navigation planners no longer need to identify ground type 
+    - No switch modes during autonomous operation require
+
+    - **Discussion compared to other methods**
+    - **Open-ended research questions**
+
+
+---
+### Learning Agile Soccer Skills for a Bipedal Robot with Deep Reinforcement Learning
+
+**Authors**: Tuomas Haarnoja, Ben Moran, Guy Lever, Sandy H. Huang, Dhruva Tirumala, Markus Wulfmeier, Jan Humplik, Saran Tunyasuvunakool, Noah Y. Siegel, Roland Hafner, Michael Bloesch, Kristian Hartikainen, Arunkumar Byravan, Leonard Hasenclever, Yuval Tassa, Fereshteh Sadeghi, Nathan Batchelor, Federico Casarini, Stefano Saliceti, Charles Game, Neil Sreendra, Kushal Patel, Marlon Gwira, Andrea Huber, Nicole Hurley, Francesco Nori, Raia Hadsell, Nicolas Heess
+
+**Keywords**:
+
+**Abstract**: We investigate whether Deep Reinforcement Learning (Deep RL) is able to synthesize sophisticated and safe movement skills for a low-cost, miniature humanoid robot that can be composed into complex behavioral strategies in dynamic environments. We used Deep RL to train a humanoid robot with 20 actuated joints to play a simplified one-versus-one (1v1) soccer game. We first trained individual skills in isolation and then composed those skills end-to-end in a self-play setting. The resulting policy exhibits robust and dynamic movement skills such as rapid fall recovery, walking, turning, kicking and more; and transitions between them in a smooth, stable, and efficient manner—well beyond what is intuitively expected from the robot. The agents also developed a basic strategic understanding of the game, and learned, for instance, to anticipate ball movements and to block opponent shots. The full range of behaviors emerged from a small set of simple rewards. Our agents were trained in simulation and transferred to real robots zero-shot. We found that a combination of sufficiently high-frequency control, targeted dynamics randomization, and perturbations during training in simulation enabled good-quality transfer, despite significant unmodeled effects and variations across robot instances. Although the robots are inherently fragile, minor hardware modifications together with basic regularization of the behavior during training led the robots to learn safe and effective movements while still performing in a dynamic and agile way. Indeed, even though the agents were optimized for scoring, in experiments they walked 156 % faster, took 63 % less time to get up, and kicked 24 % faster than a scripted baseline, while efficiently combining the skills to achieve the longer term objectives. Examples of the emergent behaviors and full 1v1 matches are available on the supplementary website: https://sites.google.com/view/op3-soccer.
+
+
+**Proposed approach**:
+
+- study whole-body control and object interaction of small humanoids in dynamic multi-agent environments.
+
+Reward policy:
+- the agent is rewarded for scoring a goal
+    - Is considered goal if the center of the ball enters the goal.
+- the episode terminates once:
+    - agent falls over
+    - goes out of bounds, 
+    - enters the goal penalty area
+    - the opponent scores.
+    - or after 50 seconds.
+    - after every episode the position of the agents and the ball is randomized as well the orientation.
+
+The action space:
+- 20 DOF with an exponential action filter to remove high frequency components
+- thi control commands "u" are fed into a PID controller, corresponding to torques in sim and voltage in the real robot.
+
+The proprioception sensing consists:
+- joint positions
+- IMU readings
+
+The game state information is obtained via a motion capture setup in the real environment:
+- agent’s velocity
+- ball location and velocity, 
+- opponent location and velocity
+- location of the two goals
+- The agent infer its global position
+
+Training pipeline:
+- 1. separate teacher policies for scoring goals and for getting up from the ground are trained.
+    - trained to score as many goals as possible
+    - trained to get up based on a set of target poses. the agent learns to interpolate joint positions to get up
+- 2. the teachers are distilled into a single 1v1 soccer agent
+- 3. Self-play
+
+Self-Play:
+- In the first iterations the soccer teacher is trained against an untrained opponent.
+    - An alternative approach is to train the agent against a copy of itself by this lead to unestable learning However, Bansal et al. (2018)
+    - uniformly randomly sampling the opponent per episode from all previously trained policies led to improved performance
+    - this training led to agents that were agile and defended against the opponent scoring
+
+Sim-to-Real Transfer:
+- to reduce the gap between the simulation and the real world they proposed:
+    - System Identification
+    - Domain Randomization and Perturbations
+    - Regularization for Safe Behaviors
+
+- System identification:
+    - For simplicity, we chose a position controlled actuator model with torque feedback and with only damping (1084 Nm¹radsº), armature (0045 kg m2), friction (0.03), maximum torque (41 N m), and proportional gain (211 Nrad) as free parameters.
+
+- Domain Randomization and Perturbations:
+    - they randomized the floor friction (05 to 1 0)
+    - joint angular offsets (29°)
+    - varied the orientation (up to 2°)
+    - position (up to 5 mm) of the IMU 
+    - attached a random external mass (up to 05 kg) to a randomly chosen location on the robot torso. 
+    - random time delays (10 ms to 50 ms) to the observations to emulate latency in the control loop.
+    - external impulse force 5 N m to 15 N m lasting for 0.05s to 0.15s to a randomly selected point on the torso every 1s to 3s.
+
+- Regularization for Safe Behaviors:
+    - limited the range of motion (manually) per joint to prevent damage
+    - penalty term to minimize the time integral of torque peaks
+        - after that the agent often lean forward when walking (in sim), but when transferred to a real robot, it would often cause the robot to loose balance and fall forward.
+            - to fix this another reward term was introduce to keeping an upright pose within the threshold of 11.5°.
+
+
+
+**Method(s) for evaluating approach**
+
+Robotic platform: OP3
+
+Training time:
+- Training the get-up and soccer teachers took 14 and 158 hours (6.5 days)
+- distillation and self-play took 68 hours
+
+To compare their results they isolated 3 behaviors:
+- walking: measured the maximum speed in any horizontal direction
+- getting: thus placed the robot on the floor, face down in a T-pose. only counted those instances where the robot remained above that height for the following one second, to discount instances where the robot got up quickly but subsequently stumbled
+- kicking: the robot placed the ball 15 m from the opponent’s goal and placed the robot behind the ball, facing the goal
+- compared them to corresponding scripted baseline controllers
+
+- learned value function to validate its sensitivity to game features shows some criteria in assign high value to ball velocities directed toward the goal, and also to ball velocities consistent with keeping the ball in the area under the agent’s control.
+- ran ablations to investigate the effect of regularizing to teachers and incorporating self-play. they compare the learned policy with:
+    - Sparse Reward: reward given for scoring goals (agents learned a local optimum)
+    - Shaped Reward: applied penalty for been in the ground and does not receive any positive rewards
+
+- **Contributions**
+    - **Conclusions**
+    - **Results**
+**Challenges**:
+
+- transfer general embodied intelligence from simulation to a physical system.
+- able to make predictions about the ball, teammates, and opponents
+- adapt their movements to the game context
+- coordinate movements over long timescales
+- wide range of movements: walking, running, turning, kicking and fall recovery
+
+
+**Personal Notes**:
+
+    - **Relevance**
+    - **Benefits**
+    - **Discussion compared to other methods**
+- The teacher policies for get up and scoring are completely independent.
+- in this work the agent has access to the internal state of the opponent and to the policy, how can this be extended so as not to depend on it?
+- used a default script baseline provided by the manufacturer to compare their results, and based on that conclude improvements, which clearly exist, but why not compare the results with state-of-the-art (scripted or not) approaches?
+- To reduce the sim-to-real gap they proposed a "System Identification" wich reference a modeling of the system free parameters, this require manual setup, validation and iteration by itself.
+    - This make the approach more difficult to transfer to other locomotion model or even the same locomotion with different physical characteristics.
+
+- Manual effort in hand craft the appropiate reward policy, The reward components used for training the teachers and the 1v1 policy. Since the scope of the research is limited to a 1v1 game there are no experiments that show robustness of this reward policy in a one-vs-many or many-vs-many scenario.
+
+- In the paper they presented the comparison between their model and a baseline with isolated behaviors, no measurements were shown for the behavior as a whole, as the combination of them is more representative of the performance in accomplishing the task.
+
+- the experiment designed to compare the force of the kick presents unbiasedness since the scripted baseline used for comparison is essentially "blind" and does not consider the position of the ball, instead the policy learned by the model learns to better optimize the kick since it has access to the position of the ball compared to the internal state of the robot, which gives a serious advantage with respect to the baseline. however both reached a ball speed of about 2 m/s before a static ball positioned in front of the robot.
+
+- The way to validate the effect of ablations in the regularization of the teacher's policy is REDUNDANT, to compare a model that contains hand crafted components in the reward policy, which were obtained in an iterative process of trial and error, and knowledge of the domain provided by the researchers, versus a policy where the only condition was to score Goals (Sparse Reward) or penalties for being on the ground (Shaped Reward) does not provide relevant information, since clearly the performance will be infirior in models with basic reward policies.
+
+**Open-ended research questions**:
+- can this reward policy transfer without or little effort in to a one-to-many and many-to-many games?
+
+---
+### Learning High-Speed Flight in the Wild
+
+**Authors**: Antonio Loquercio, Elia Kaufmann, René Ranftl, Matthias Müller, Vladlen Koltun, Davide Scaramuzza
+
+**Keywords**: 
+
+**Abstract**: Quadrotors are agile. Unlike most other machines, they can traverse extremely complex environments at high speeds. To date, only expert human pilots have been able to fully exploit their capabilities. Autonomous operation with onboard sensing and computation has been limited to low speeds. State-of-the-art methods generally separate the navigation problem into subtasks: sensing, mapping, and planning. Although this approach has proven successful at low speeds, the separation it builds upon can be problematic for high-speed navigation in cluttered environments. The subtasks are executed sequentially, leading to increased processing latency and a compounding of errors through the pipeline. Here we propose an end-to-end approach that can autonomously fly quadrotors through complex natural and human-made environments at high speeds, with purely onboard sensing and computation. The key principle is to directly map noisy sensory observations to collision-free trajectories in a receding-horizon fashion. This direct mapping drastically reduces processing latency and increases robustness to noisy and incomplete perception. The sensorimotor mapping is performed by a convolutional network that is trained exclusively in simulation via privileged learning: imitating an expert with access to privileged information. By simulating realistic sensor noise, our approach achieves zero-shot transfer from simulation to challenging real-world environments that were never experienced during training: dense forests, snow-covered terrain, derailed trains, and collapsed buildings. Our work demonstrates that end-to-end policies trained in simulation enable high-speed autonomous flight through challenging environments, outperforming traditional obstacle avoidance pipelines.
+
+**Proposed approach**:
+
+- predicting navigation commands directly from sensor measurements
+    - depth images as representation that is abstract enough to bridge simulation and reality
+        - strong similarity of the noise models between simulated and real observations
+            - robustness against common perceptual artifacts in existing depth sensors.
+
+- the policy was trained exclusively in simulation.
+
+- trained using privileged learning with access to:
+    - 3D environment representation with point cloud data.
+    - perfect knowledge of the state of the quadrotor
+    - unconstrained computational budget
+
+- the planner to compute trajectories with a short time horizon
+    - bias the sampler toward obstacle-free regions by conditioning it on trajectories from a classic global planning algorithm
+
+The policy:
+- input:
+    - noisy depth image and inertial measurements
+- output:
+    - set of short-term trajectories together with an estimate of individual trajectory costs
+        - the trajectories are represented with highorder polynomials
+- At test time, they use the predicted trajectory costs to decide which trajectory to execute in a receding horizon.
+
+
+**Method(s) for evaluating approach**:
+
+- two experimental environments:
+    - human-made (19 experiments) range of 3 to 7 m/s
+    - natural (31 experiments)
+- measure performance according to success rate
+    - where we consider a run successful if the drone reaches the goal location within a radius of 5m without crashing. (harley: 5m is a lot ? i dont have context)
+    - report the cumulative and individual success rates at various speeds
+- two different reference trajectories (not collision-free) 
+    - 40 m-long straight line
+    - circle with a 6 m radius
+
+- Comparison with two state-of-the-art methods as baselines (both for unknown environments):
+    - FastPlanner Zhou et al.: this builds a map and plan the trajectory based on obstacle free spaces (not designed for high-speed)
+        - high-speed motion results in little overlap between consecutive observations
+    - Reactive Florence et al.: (no map) uses instantaneous depth information to select the best trajectory from a set of pre-defined motion primitives, and encode cost collision and progress to the goal.
+
+- Computational cost
+    - FastPlanner: total computation time of 65.2 ms per frame
+    - Reactive: total processing latency of 19.1 ms, limited to a set of pre-defined trajectories
+        - Sensitive to sensing errors
+    - Proposed approach with (GPU inference): 2.57 ms
+    - Proposed approach with (CPU): 10.3 ms
+    - onboard processing: 38.9 ms (network’s forward), total from sensing to plan 41.6 ms (update rate of 24 Hz)
+
+**Contributions**:
+
+- without experiencing a single crash during experiments in the real world
+    - this approach achieved [SPEED HERE] while state-of-the-art methods with comparable sensing, actuation and computation reached maximum average speed of 2.29 m
+- present an approach to fly a quadrotor at high speeds in a variety of environments with complex obstacle geometry while having access to only onboard sensing and computation.
+    - fly a physical quadrotor in natural and human-made environments at speed [INSERT SPEED HERE]
+- end-to-end approach from perception to planning, other methods only builds on top of perception wheras others planning in a unrelated manner.
+- in a zero-shot generalization setting
+- physical world without any adaptation or fine-tuning.
+
+
+- sampling based expert
+- a neural network architecture
+- a training procedure, all of which take the task’s multi-modality into account.
+
+
+**Conclusions**:
+- performance drop at very high speeds is the mismatch between the simulated and physical drone in terms of dynamics and perception.
+
+
+**Results**:
+
+- Depth images as representation shows negligible domain shift from simulation to the real world
+- robustness under conditions that were never seen in simulation
+    - high dynamic range in the image, from indoor to outdoor
+    - poorly textured surfaces (snow)
+    - dense vegetation in forests
+    - irregular and complex layouts
+
+
+**Challenges**:
+
+- The perception system has to be robust to disturbances such as sensor noise, motion blur, and changing illumination conditions.
+- effective planner is necessary to find a path that is both dynamically feasible and collision-free under high uncertainty.
+- limited computational resources
+
+**Personal Notes**:
+
+- Only depth images as input data, difficult for environment with more challenges like fog
+- Temporal consistency over long time horizons is not taken into account
+
+- To go faster (challenges):
+    - aerodynamics
+    - battery power drops
+    - motion-blur
+    - these make wider the simulation to reality gap.
+
+
+- The controller is a MPC
+
+    - **Relevance**
+    - **Benefits**
+    - **Discussion compared to other methods**
+- **Open-ended research questions**:
+    - what would be the performance of the policy proposed in this work on multi-rotos with different dynamic properties, engine configurations and payloads?
+    - open question if certain subtasks, such as maintaining an explicit map of the environment, are even necessary for agile flight.
+
+
+## Manipulation
+
+
+---
+### Robot peels banana with goal-conditioned dual-action deep imitation learning
+
+**Authors**: Heecheol Kim, Yoshiyuki Ohmura, Yasuo Kuniyoshi
+
+**Keywords**: Imitation Learning, Deep Learning in Grasping and Manipulation, Dual Arm Manipulation, Force and Tactile Sensing, Telerobotics and Teleoperation
+
+**Abstract**: A long-horizon dexterous robot manipulation task of deformable objects, such as banana peeling, is problematic because of difficulties in object modeling and a lack of knowledge about stable and dexterous manipulation skills. This paper presents a goal-conditioned dual-action deep imitation learning (DIL) which can learn dexterous manipulation skills using human demonstration data. Previous DIL methods map the current sensory input and reactive action, which easily fails because of compounding errors in imitation learning caused by recurrent computation of actions. The proposed method predicts reactive action when the precise manipulation of the target object is required (local action) and generates the entire trajectory when the precise manipulation is not required. This dual-action formulation effectively prevents compounding error with the trajectorybased global action while respond to unexpected changes in the target object with the reactive local action. Furthermore, in this formulation, both global/local actions are conditioned by a goal state which is defined as the last step of each subtask, for robust policy prediction. The proposed method was tested in the real dual-arm robot and successfully accomplished the banana peeling task.
+
+**Proposed approach**:
+
+A. Robot framework
+B. Task Specification:
+C. goal-conditioned dual-action
+
+
+- proposed goal-conditioned dual-action (GC-DA)
+- A trajectory-based global action is used to deliver the end-effector stably to near the goal position when the robot less requires the precise manipulation of the target object
+- The reactive local action precisely controls the end-effector to manipulate the target object
+
+- The proposed method predicts reactive action when the precise manipulation of the target object is required (local action) and generates the entire trajectory when the precise manipulation is not required (global action).
+    - reactive action, is use when the manipulator is in direct contact with the object based on the researchers' hypothesis "immediate changes in the environment usually occur while the endeffector is interacting with the target object."
+    - global action, produce the entire trajectory
+
+- A simple CNN-based classifier can switch the action between global and local action, based on a criterion that considers if precise control of the target object is required.
+
+- propose a method that uses reactive action for dexterous manipulation and trajectory-based action for robustness against compounding error
+    - foveated images are used the reactive action planning
+
+- The experimental platform consists of a dual-arm robot system with two UR5 manipulators
+
+- Task is decomposed in multiples subtasks (check table II)
+
+D. Model Architecture:
+- Gaze predictor: the image is resized to a (320 × 180 × 6) with a predicted coordinate of the gaze, producing a Foveated stereo image.
+    - robot chooses a stereo gaze coordinate which maximizes the probability of the GMM Gaussian mixture model (
+    - A series of a convolutional layers
+
+- Local action network: Local action outputs reactive action using the foveated image.
+- Global-action network: The global-action network use the same architecture of the local action network. At this time, because the end-effector is usually out of the foveated vision, the left/right robot state and the gaze position are processed with the Transformer encoder (State Transformer) to minimize distraction.
+
+
+Training (give the training process !!!)
+- use a image classifier to automated to annotation process as is proposed by [Memory-based gaze prediction in deep imitation learning for robot manipulation] (same researchers)
+- First, a human manually annotates part of the entire episode into global/local action.
+    - human annotated 283 episodes from the entire 2370 episodes in GraspTip subtask.
+
+
+**Method(s) for evaluating approach**:
+
+Ablation studies (each ablation study was tested with 15 bananas):
+- Is the proposed dual-action system valid?
+- Is goal-conditioned action inference effective?
+
+Ablation study:
+- in the ablation study they propose 7 variations (TABLE IV) to observe the success rate in each subtask. These variations remove the different components proposed by the authors, showing the effect of Goal-conditioned on the reaching subtask, and how the dual-action and reactive process impacts the success rate.
+    -  GC-DA got the highest mean (0.870) 
+
+The effect of goal-conditioned:
+- the mean Euclid distance between the ground-truth goal state and the predicted goal state of the right arm computed by the global-action network for every timestep is low (< 11mm) for reach subtasks but high for peeling subtasks. This result indicates that peeling subtasks are less conditioned by goal state.
+
+**Contributions**:
+
+- improves manipulation performance by predicting goal state, which is defined as the robot’s kinematic state at the last timestep of each subtask, and goal-conditioned action inference.
+    - this allows to change the actions if the goal change producing a more reactive behavior
+    - previous methods produce the reactive action from the input state.
+
+ **Results**
+
+- goal-conditioned action inference improves manipulation accuracy during precise reaching, but does not improves peeling subtasks since goal position  inferring the exact goal position is not essential for peeling subtasks
+
+**Challenges**:
+- the robot has to actively adapt its manipulation skills along with the changes of object states.
+- there are often immediate changes in the environment which may make the current trajectory unfeasible, requiring reactive behavior
+- planning-based methods cannot be directly applied to the target task because acquiring the deformable and highvariance object model from visual sensory input is difficult.
+
+- **Personal Notes**
+
+- Manual specified subtasks this implies lack of generalization in case of performing actions that are not so similar to the action of peeling a banana.
+- does it have recovery from failure?
+- The proposed method is quite dependent on manual data acquisition on the physical robot, which means that changing the action to another fruit or object requires retraining the model.
+
+- the proposed division of sequential sub-tasks creates a strong dependency on the execution process whereby the previous sub-task must have been successfully completed in order to execute the next sub-task which required that in the case of failures the authors needed to perform manual corrections such as repositioning the banana in order to be able to evaluate the next sub-task.
+
+- according to observations made the banana after two days became too soft and breakable, causing the robot to fail in execution, this pointed out that the method lacks robustness to the varying conditions of the banana.
+- In this research, 811 minutes ≈ 13.5 hours of demonstration data were generated and trained.
+    - a as the authors say "which can be obtained in only a few days", but this only for bananas
+    - **Relevance**
+    - **Benefits**
+    - **Discussion compared to other methods**
+
+**Open-ended research questions**:
+- How can reactive behavior be extrapolated to scenarios where the target object is moving outside the manipulator's control?
+
+---
+### Fully Autonomous Real-World Reinforcement Learning with Applications to Mobile Manipulation
+
+**Authors**: Charles Sun, Jędrzej Orbik, Coline Devin, Brian Yang, Abhishek Gupta, Glen Berseth, Sergey Levine
+
+**Keywords**: Mobile Manipulation, Reinforcement Learning, Reset-Free
+
+**Abstract**: We study how robots can autonomously learn skills that require a combination of navigation and grasping. While reinforcement learning in principle provides for automated robotic skill learning, in practice reinforcement learning in the real world is challenging and often requires extensive instrumentation and supervision. Our aim is to devise a robotic reinforcement learning system for learning navigation and manipulation together, in an autonomous way without human intervention, enabling continual learning under realistic assumptions. Our proposed system, ReLMM, can learn continuously on a real-world platform without any environment instrumentation, without human intervention, and without access to privileged information, such as maps, objects positions, or a global view of the environment. Our method employs a modularized policy with components for manipulation and navigation, where manipulation policy uncertainty drives exploration for the navigation controller, and the manipulation module provides rewards for navigation. We evaluate our method on a room cleanup task, where the robot must navigate to and pick up items scattered on the floor. After a grasp curriculum training phase, ReLMM can learn navigation and grasping together fully automatically in around 40 hours of autonomous real-world training.
+
+**Proposed approach**
+
+- propose to deploy the robot directly in the real world, using a reinforced learning system for mobile manipulation skills without instrumentation.
+
+- learns directly from on-board ego-centric camera observations
+- uses proprioceptive grasp sensing to assign itself rewards
+
+- Hierarchical reinforcement learnin
+
+Networks:
+- Navigation
+- Grasping: the mobile manipulation task is formulated as a partially observed Markov decision processes (POMDP)
+- Separating the policies enables the use of uncertainty-based exploration for the grasping module, which uses an ensemble of Qfunctions to explore grasp actions efficiently
+
+Grasping Policy Training (given an image, predict the likelihood of grasp success for each action):
+- model the robots chance of success
+    - grasping policies and using their uncertainty to efficiently explore grasping
+- select an appropriate action to maximize success
+
+Navigation Policy Training:
+- the policy must be able to control the mobile base to approach objects in a way that the current grasping policy can succeed
+    - The navigation policy outputs the action an that controls the forward and turn velocities of the mobile robot base.
+
+Autonomous Pseudo-Resets:
+- commanding random navigation actions while the robot is holding the object, placing down the object in this new location, and then navigating randomly away.
+
+Training Curricula:
+- The problem with a two-policy training curriculum is that the reward policy for navigation only rewards successful grasping, initially in the grasping process will not achieve success, which penalizes the navigation reward policy even when the navigation to the object was successful.
+- Stationary curriculum: place a single object in front of the robot, after each successful grasp, the robot places the object down randomly
+- Autonomous curriculum: this curriculum encourages the agent to perform grabs at the beginning of the learning process, this is defined by the hyperparameters Nstart, Nstop, and Nmax, the agent executes a defined series of N grabs until it reaches Nmax and starts the navigation.
+
+- task is non-episodic, the policies are evaluated at the end of training
+
+**Method(s) for evaluating approach**
+
+- Can ReLMM learn autonomously in the real world?
+- How does the control hierarchy affect learning performance?
+- How does ReLMM compare to other policy designs and prior methods?
+
+- experimental evaluation:
+    - 4 environments, no obstacles, with obstacles, with diverse objects, and with obstacles and rugs
+- Simulation
+
+- 3 baselines measured as a percentage of objects collected:
+    - scripted
+    - Rand nav
+    - Rand all
+
+**Contributions**:
+
+- auto reset: an autonomous resetting behavior where the robot re-arranges the environment as it learns, so as to continually create new arrangements of objects for the agent continually “practice.”
+    - others papers:
+        - infrastructure that provides explicit resets
+        - person providing resets
+
+    - **Conclusions**
+
+**Results**:
+
+- final system can learn room cleaning skills in a number of different room configurations in ∼ 40 hours directly in the real world.
+
+**Challenges**:
+
+- for learning in the real-world the need to be sample efficient.
+- maximise the autonomy of learning
+    - the robot must be able to continually gathering data at scale without human effort
+
+- learn entirely from its own sensors, both to select actions and to compute rewards
+
+**Personal Notes**
+
+- The authors state: Our aim is not to propose the best possible system for solving any particular task.
+
+- Take 40-60 hours of autonomous interaction of real world training
+    - what if the handling task requires handling objects likely to be subjected to falling or aggressive handling?
+
+- some manipulation tasks do not allow the training of the robot in a real environment due to several factors such as the manipulation of fragile and expensive objects, or objects that if handled inappropriately may cause accidents to humans or to the integrity of the robot itself.
+
+- although the authors attempt to achieve autonomous training in the real world, the stationary curriculum still requires human intervention in cases where the robot positions the object out of range.  According to the paper data this happens about 5% of the time.
+
+    - **Relevance**
+**Benefits**   
+- this approach lacks absolutely an essential component in autonomous navigation with the avoidance of obstacles, the protocol proposed by the authors in section A.3 is that in the presence of an obstacle, stop and turn at a random angle until the obstacle is no longer encountered.
+- the ablation study was only carried out in simulation, these results can be considered non-representative for the physical system, since the existence of the gap between simulation and reality is known, and since there is no mechanism in the proposed method that minimizes this transfer, it can be inferred that the ablation results in the physical system will be inferior to those of the simulation.
+- the authors of the paper refer to their method as achieving; "[...] mastering room cleanup tasks with about 40-60 hours of autonomous interaction" however the experiments were conducted with objects of homogeneous size, consistency and shape, which is far from being a representative sample of a cleaning task where the variety and characteristics of objects is vast.
+
+    - **Discussion compared to other methods**
+    - **Open-ended research questions**
+
 
 # 5 Conclusions
 Summarize you view on the state of the art in the field which you have been investigating. (half a page, times roman 11pt, single space)
@@ -48,7 +767,15 @@ pictured either as structured list or as tree
 
 ## 7.6 List of most important journals and magazines
 
-## 7.7 List of top research labs/researchers
 
+- Science Robotics
+
+## 7.7 List of top research labs/researchers (in no particular order)
+
+Top research labs:
+- Locomotion
+    - Robotic Systems Lab, ETH Zurich, Zurich, Switzerland
+- Impressive research in manipulation:
+    - Laboratory for Intelligent Systems and Informatics (ISI Lab), Department of Mechano-Informatics, Graduate School of Information Science and Technology, The University of Tokyo.
 
 ## 7.8 Mindmap
