@@ -55,8 +55,14 @@ zero-shot transfer and learn policies
 ## Manipulation
 
 - Model-free deep imitation reinforcement learning-based methods does not require pre-defined annotations or rule-based manipulation skills.
+- strong assumptions like accurate object models and simplified contact interactions
+    - Data-driven methods can alleviate some of these assumptions
 
 3D registration:
+
+- [A geometric approach for grasping unknown objects with multifingered hands]
+- [Learning continuous 3d reconstructions for geometrically aware grasping]
+- effort in generating datasets of how humans interact with objects [GRAB: GRasping Actions with Bodies]
 
 Hardware-centric:
 
@@ -65,6 +71,8 @@ Learning by demonstration:
 - [Robot threads needle by using deep imitation learning](https://www.youtube.com/watch?v=ytpChcFqD5g)
 
 Deep Reinforcement Learning:
+
+RL methods require careful hyperparameter-tuning, are difficult to train, and do not scale well to the high-dimensional action spaces.
 
 
 - without human intervention, and without access to privileged information, such as maps, objects positions, or a global view of the environment [Fully Autonomous Real-World Reinforcement Learning with Applications to Mobile Manipulation]
@@ -245,7 +253,7 @@ Deep Reinforcement Learning Pipeline:
 
 **Contributions**
 
-- elevation map is an abstraction layer between sensors and the locomotion controller this make the methos independent of the depth sensor choice.
+- elevation map is an abstraction layer between sensors and the locomotion controller this make the methods independent of the depth sensor choice.
 - deploy it on the robot without any fine-tuning nor retraining.
 - the policy handle significant noise, bias, and gaps in the elevation map.
 - traversed challenging natural environments
@@ -735,6 +743,247 @@ Training Curricula:
     - **Discussion compared to other methods**
     - **Open-ended research questions**
 
+---
+### One-Shot Domain-Adaptive Imitation Learning via Progressive Learning
+
+**Authors**: Dandan Zhang, Wen Fan, John Lloyd, Chenguang Yang, Nathan Lepora
+
+**Keywords**: 
+
+**Abstract**: Traditional deep learning-based visual imitation learning techniques require a large amount of demonstration data for model training, and the pre-trained models are difficult to adapt to new scenarios. To address these limitations, we propose a unified framework using a novel progressive learning approach comprised of three phases: i) a coarse learning phase for concept representation, ii) a fine learning phase for action generation, and iii) an imaginary learning phase for domain adaptation. Overall, this approach leads to a one-shot domain-adaptive imitation learning framework. We use robotic pouring task as an example to evaluate its effectiveness. Our results show that the method has several advantages over contemporary end-to-end imitation learning approaches, including an improved success rate for task execution and more efficient training for deep imitation learning. In addition, the generalizability to new domains is improved, as demonstrated here with novel background, target container and granule combinations. We believe that the proposed method can be broadly applicable to different industrial or domestic applications that involve deep imitation learning for robotic manipulation, where the target scenarios have high diversity while the human demonstration data is limited.
+
+**Proposed approach**:
+
+- pouring involves complex dynamic processes that are difficult to model
+
+Robotic Pouring Task:
+- pouring task requires the robot to successfully pour different granular materials to different target containers with distinct background environments
+
+- a motion-capture device as the remote controller was used to collect the demonstration database
+- a RGB camera was looking at the container used to capture the image frames for training
+- source container was attached as an end effect to the wrist of the robotic arm
+
+The demonstration database is constructed from ten distinct pouring scenes.
+
+A. Coarse Learning: is an adapted version of a ResNet18 model reorganized into a multi-head structure for multi-variable classification
+- The authors propose a methodology to extract features that are representative of the context of the task that is interpretable by humans, since other technologies such as convolutional networks and auto encoders can extract features but both lack human interpretability.
+    - the tilt angle control
+    - the 3D-position adjustment
+    - the taskspecific characteristics (encoded as a distinct variable z).
+
+tilt angle control: 3-class classification problem on the visual images
+- increase the tilt angle
+- keep increasing the tilt angle of the source container stably to fill up the target container
+- reduce the tilt angle of the source container when the target container is almost full or no remaining granules are in the source container.
+
+3D Position Adjustment: 3-class classification problem
+- dont move,
+- move fast
+- move slow
+
+Encoding characteristics:
+- granules size
+- granules class
+
+To update the model
+- Since the first and second component can be formulated as a classification problem, we use categorical cross-entropy loss
+- We set the weight as 0.4,0.2,0.2,0.2 for Lp respectively in this paper.
+
+B. Fine Learning: Action Generation: use a Long-Short Term Memory (LSTM) recurrent neural network
+- ensure that the generated velocities are safe and reasonable for the controlling the robot, we calculate the mean and variance of the angular velocity for every pouring stage
+- also obtain the lower and upper bounds
+
+C. Domain Adaptation: due to the limitation of aligned image pairs from different domains
+- use CycleGAN to transfer images from the original database to a new database
+
+**Method(s) for evaluating approach**:
+
+- The success rate is used to evaluate the performance
+    - A successful trial is defined as one in which the granules are poured from the source container into the target container without spilling.
+    - successful trial is defined as pouring at least 90% total volume of granules from the source container to the target container.
+
+- Ablation study
+    - coarse learning by checking the loss in the training database with and without the coarse component
+    - Fine Learning (The comparison is conducted in terms of the success rate)
+        - baseline: [Multiple interactions made easy (mime)]
+    - Domain adaptation: 3 parameters were modified to evaluate the adaptability to a new domain, these correspond to background, container and grains.
+
+
+**Contributions**:
+
+- train the robot to learn general concepts by encoding concept representation features during the coarse learning phase
+- enable the robot to generate precise motion using an LSTM-Attention hybrid model during the fine learning phase
+    - this enable concept representation with temporal information
+- a generative adversarial network to generate a large amount of synthetic observation data in new scenarios during the imaginary learning phase
+
+- The proposed method can address the fundamental limitations of deep imitation learning by eliminating the need of recollecting a large amount of demonstration data and retraining the whole model in new domains with unseen object properties or environments
+
+- The authors modeled the robot's actions as a 4 parameter system, 3 of which are used to control the 3D position of the end effector and 1 to control the wrist joint angle of the robot, however this does not explore the full potential of the 6 parameter controllability offered by a 6 DOF robotic arm as used in the experiments.
+
+
+**Conclusions**:
+
+- proposed method has advantages in terms of high success rate, data efficiency and generalizability
+
+**Results**:
+
+- coarse learning model enhances the data efficiency of the action generation model training
+    - with only 25% of the available data the loss still better than without the coarse module (table II)
+- Fine learning
+    - the success rate is improved significantly (77.5% vs. 35.0%) compare to the baseline.
+    - the baseline do not use temporal information
+- Domain adaptation
+    - with domain adaptation got 79.2% vs. 29.1%
+
+**Challenges**:
+
+- imitation learning techniques require a large amount of demonstration data for model training
+- policies trained in a specific environment may not work well if applied to other environments
+    - policies obtained during the model training phase are domain-specific
+- is not feasible for robots to learn from trial-and-error based on reinforcement learning approaches for the pouring task
+
+**Personal Notes**:
+
+- the authors decided to evaluate their method using pouring task, although the robustness to different backgrounds, containers and grains was considered the experimental setup made use of a source container attached as part of the end effector, this presents limitations since in a more realistic environment the robot should be able to take the source container on its own and with it execute the pouring task.
+
+- The proposed methodology despite pursuing the objective of "[...] framework that is data-efficient and can generalize the learned behavior to a new scenario with novel domain characteristics [...]" ends up building a model that is highly dependent on pouring task and would require a lot of adjustments to generalize new actions. This can be observed in the implementation proposed for component 1 "tilt angle" of Coarse Learning, where it is modeled around a 3-class classifier a) start pouring b) continue pouring c) stop pouring, as well as in component 2 "3D Position Adjustment" which also uses a 3-class classifier.
+
+    - **Relevance**
+    - **Benefits**
+    - **Discussion compared to other methods**
+    - **Open-ended research questions**
+
+---
+### FFHNet: Generating Multi-Fingered Robotic Grasps for Unknown Objects in Real-time
+
+**Authors**: Vincent Mayer, Qian Feng, Jun Deng, Yunlei Shi, Zhaopeng Chen, Alois Knoll
+ 
+**Keywords**
+
+**Abstract**: Grasping unknown objects with multi-fingered hands at high success rates and in real-time is an unsolved problem. Existing methods are limited in the speed of grasp synthesis or the ability to synthesize a variety of grasps from the same observation. We introduce Five-finger Hand Net (FFHNet), an ML model which can generate a wide variety of high-quality multi-fingered grasps for unseen objects from a single view. Generating and evaluating grasps with FFHNet takes only 30ms on a commodity GPU. To the best of our knowledge, FFHNet is the first ML-based real-time system for multi-fingered grasping with the ability to perform grasp inference at 30 frames per second (FPS). For training, we synthetically generate 180k grasp samples for 129 objects. We are able to achieve 91% grasping success for unknown objects in simulation and we demonstrate the model’s capabilities of synthesizing high-quality grasps also for real unseen objects.
+
+**Proposed approach**
+
+Grasps sampling:
+- model additionally predicts the full 15 DOF,
+- multilayer perceptron (MLP) architecture with 3 hours retraining
+- model takes 30 ms in total
+
+Grasp evaluation:
+
+- to encode 3D point clouds as distances to a fixed set of randomly sampled 3D basis points (Basis Point Set or BPS).
+
+- We assume a successful segmentation of the object’s point cloud from the depth data.
+    - Grasping success is defined as the ability to lift the object 20 cm above its resting position without slippage.
+    - the encoder maps the distribution of grasps for an object observation into a latent space following a univariate Gaussian distribution.
+
+Grasp generation: Convolutional Variational Autoencoder
+
+Grasp evaluation: able to distinguish between successful and unsuccessful grasps
+- The FFHEvaluator predicts the probability that a candidate grasp g for a given observation of an object xb will result in success s.
+- Our evaluator directly predicts the success of lifting an object given a grasp and object point cloud
+
+The core building block of both models is the FC ResBlock:
+- which consists of two parallel paths from input to output. 
+- One path consists of a single FC layer, the other path has two FC layers. 
+- Each is followed by a layer of batch norm (BN).
+
+The dataset:
+- combine the BIGBIRD, KIT and YCB (physical objects) object datasets
+    - These objects are filtered for their graspability and object type leaving 129 graspable objects.
+
+Data generation:
+- First, an object is spawned in front of the robot, and the simulated camera records a point cloud.
+- the object is segmented from the ground via RANSAC
+- The normals for the object point cloud are computed and then used in order to uniformly sample one palm 6D pose (R, t) per object point.
+- Each 6D pose is associated with one uniformly sampled finger joint configuration
+- The grasps are filtered for reachability and non-collision
+- After that, a lifting attempt of the object is made
+- These steps are repeated for all objects in multiple poses
+
+Sampling joint configuration:
+- Randomly sampling joint angles in the 15-dimensional configuration space is inefficient.
+
+**Method(s) for evaluating approach**:
+
+Sim experimental evaluation:
+- from 12 objects, Each object is placed in simulation three times in random positions and random yaw-angle orientations.
+- Avg. Success of grasping, by changing the threshold of successful grasp from the FFHEvaluator
+- Avg. Success of grasping for differents methods
+- compare FFHNet to other state-of-the-art methods for multi-fingered grasping
+
+Sim-to-real grasping:
+- 
+
+**Contributions**:
+
+- introduce a generative model called FFHGenerator
+    - capable of sampling diverse distributions of grasps for unseen objects in roughly 10 ms
+- a discriminative model called FFHEvaluator 
+    - able to successfully predict success for the generated grasps in roughly 20 ms
+- new synthetic grasp dataset containing 180k grasps for 129 household objects from the BIGBIRD [28] and KIT [29] datasets, along with the automatic data generation and labeling pipeline
+- FFHNet is able to generate good grasps even if only a small part of the geometry can be observed
+
+    - **Conclusions**
+
+**Results**:
+- In case of no grasping evaluation with the FFHEvaluator the average success is 61%
+- as the FFHEvaluator's success probability threshold rises, the average number of successful grasps increases with it.
+
+- FFHGenerator and FFHEvaluator outperforms a Heuristics-based and the FFHGenerator without the evaluation state.
+- shape completion methods or gradient-based optimization
+
+**Challenges**:
+
+- speed of grasp synthesis
+- ability to synthesize a variety of grasps from the same observation
+
+- **Personal Notes**
+
+- The work assumes an environment without external disturbances.
+- What would be the performance of this method in a physical system?
+- the proposed method is limited to the number of classes contained in the data set (129 in this case).
+- The simulation experiments were performed with only 12 objects and 4 physical objects,
+    - The point cloud of 4 physical objects was captured, but only the naturalness with which the objects were grasped was qualitatively evaluated, the experimental results do not show explicit results of the success rate with the physical objects, and the sample is small compared to the 129 with which it was trained.
+- FFHNet outperforms other methods, but as the authors say it was not possible to make a fair comparison because of the difference in hardware, objects, and dataset, they limited themselves to compare the execution time, however they present data of the success rate (TABLE III) but do not mention if these were obtained with a common set of objects among all the methods, or with the dataset implemented for each method, in the case of the latter the comparison is not fair due to inconsistency of the objects among methods.
+- method the seeming lack of diversity in finger configuration and bias towards pinch grasps
+
+- potential for reactive grasping or dynamic human-robot handover scenarios.
+
+    - **Relevance**
+    - **Benefits**
+    - **Discussion compared to other methods**
+    - **Open-ended research questions**
+
+---
+### Deep Reinforcement Learning for Robotic Manipulation with Asynchronous Off-Policy Updates
+
+**Authors**: Shixiang Gu, Ethan Holly, Timothy Lillicrap, Sergey Levine
+
+**Keywords**: 
+
+**Abstract**: Reinforcement learning holds the promise of enabling autonomous robots to learn large repertoires of behavioral skills with minimal human intervention. However, robotic applications of reinforcement learning often compromise the autonomy of the learning process in favor of achieving training times that are practical for real physical systems. This typically involves introducing hand-engineered policy representations and human-supplied demonstrations. Deep reinforcement learning alleviates this limitation by training general-purpose neural network policies, but applications of direct deep reinforcement learning algorithms have so far been restricted to simulated settings and relatively simple tasks, due to their apparent high sample complexity. In this paper, we demonstrate that a recent deep reinforcement learning algorithm based on offpolicy training of deep Q-functions can scale to complex 3D manipulation tasks and can learn deep neural network policies efficiently enough to train on real physical robots. We demonstrate that the training times can be further reduced by parallelizing the algorithm across multiple robots which pool their policy updates asynchronously. Our experimental evaluation shows that our method can learn a variety of 3D manipulation skills in simulation and a complex door opening skill on real robots without any prior demonstrations or manually designed representations.
+- **Proposed approach**
+- **Method(s) for evaluating approach**
+
+**Contributions**
+- asynchronous variant of the Normalized Advantage Function algorithm (NAF) algorithm,
+
+    - **Conclusions**
+    - **Results**
+
+**Challenges**:
+
+- typically hand-engineered policy representations 
+- human-supplied demonstrations
+- sample-efficient training
+
+- **Personal Notes**
+    - **Relevance**
+    - **Benefits**
+    - **Discussion compared to other methods**
+    - **Open-ended research questions**
+
 
 # 5 Conclusions
 Summarize you view on the state of the art in the field which you have been investigating. (half a page, times roman 11pt, single space)
@@ -777,5 +1026,6 @@ Top research labs:
     - Robotic Systems Lab, ETH Zurich, Zurich, Switzerland
 - Impressive research in manipulation:
     - Laboratory for Intelligent Systems and Informatics (ISI Lab), Department of Mechano-Informatics, Graduate School of Information Science and Technology, The University of Tokyo.
+    - Deutsches Zentrum für Luft- und Raumfahrt (DLR) Institute of Robotics and Mechatronics, Oberpfaffenhofen Germany
 
 ## 7.8 Mindmap
