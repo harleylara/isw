@@ -37,6 +37,7 @@ of information simultaneously to understand our surroundings."
 
 Multimodal sensors fusion:
 - Audio-visual speech recognition (AVSR): [Multimodal Sensor-Input Architecture with Deep Learning for Audio-Visual Speech Recognition in Wild].
+- [Visual, haptic and cross-modal recognition of objects and scenes]
 
 
 ## Locomotion
@@ -58,6 +59,10 @@ zero-shot transfer and learn policies
 - strong assumptions like accurate object models and simplified contact interactions
     - Data-driven methods can alleviate some of these assumptions
 
+    - one study reported 2 months of grasping an object a total of 800,000 times by using 14 robots [Learning hand-eye coordination for robotic grasping with deep learning and large-scale data collection.]
+
+Inspired by research in the field of Biological Cybernetics and Neuroscience,the brain always predicts the next state of sensation and movement. It behaves to minimize the error (prediction error ≃ uncertainty) between the prediction and reality.  deep predictive learning (DPL) has been proposed, described as adjusting cognitive models (perceptual inference) and behavior to the outside world (active inference)
+
 3D registration:
 
 - [A geometric approach for grasping unknown objects with multifingered hands]
@@ -72,6 +77,8 @@ Learning by demonstration:
 
 Deep Reinforcement Learning:
 
+- cluttered environments [Ecient push-grasping for multiple target objects in clutter environments]
+
 RL methods require careful hyperparameter-tuning, are difficult to train, and do not scale well to the high-dimensional action spaces.
 
 
@@ -81,6 +88,17 @@ challenges:
 - simulators may not always accurately reflect reality
 - Rubik’s cube took 4 moth for training.
 - Highly dependent of data
+
+## Perception
+
+Visual:
+
+Haptic:
+
+- both visual and physical interaction signals together yields more accurate haptic classification
+    - [Deep Learning for Tactile Understanding From Visual and Haptic Data]
+
+Hearing:
 
 
 # 4 Annotated Bibliography - [insert topic here]
@@ -963,7 +981,15 @@ Sim-to-real grasping:
 **Keywords**: 
 
 **Abstract**: Reinforcement learning holds the promise of enabling autonomous robots to learn large repertoires of behavioral skills with minimal human intervention. However, robotic applications of reinforcement learning often compromise the autonomy of the learning process in favor of achieving training times that are practical for real physical systems. This typically involves introducing hand-engineered policy representations and human-supplied demonstrations. Deep reinforcement learning alleviates this limitation by training general-purpose neural network policies, but applications of direct deep reinforcement learning algorithms have so far been restricted to simulated settings and relatively simple tasks, due to their apparent high sample complexity. In this paper, we demonstrate that a recent deep reinforcement learning algorithm based on offpolicy training of deep Q-functions can scale to complex 3D manipulation tasks and can learn deep neural network policies efficiently enough to train on real physical robots. We demonstrate that the training times can be further reduced by parallelizing the algorithm across multiple robots which pool their policy updates asynchronously. Our experimental evaluation shows that our method can learn a variety of 3D manipulation skills in simulation and a complex door opening skill on real robots without any prior demonstrations or manually designed representations.
-- **Proposed approach**
+**Proposed approach**:
+
+- model-free reinforcement learning
+    - includes policy search methods
+    - and function approximation methods
+
+- minimize the training time when training on real physical robots,
+
+
 - **Method(s) for evaluating approach**
 
 **Contributions**
@@ -984,6 +1010,241 @@ Sim-to-real grasping:
     - **Discussion compared to other methods**
     - **Open-ended research questions**
 
+---
+### Solving Rubik’s Cube With A Robot Hand
+
+**Authors**: OpenAI, Ilge Akkaya, Marcin Andrychowicz, Maciek Chociej, Mateusz Litwin, Bob McGrew, Arthur Petron, Alex Paino, Matthias Plappert, Glenn Powell, Raphael Ribas, Jonas Schneider, Nikolas Tezak, Jerry Tworek, Peter Welinder, Lilian Weng, Qiming Yuan, Wojciech Zaremba, Lei Zhang
+
+**Keywords**: 
+
+**Abstract**: We demonstrate that models trained only in simulation can be used to solve a manipulation problem of unprecedented complexity on a real robot. This is made possible by two key components: a novel algorithm, which we call automatic domain randomization (ADR) and a robot platform built for machine learning. ADR automatically generates a distribution over randomized environments of ever-increasing difficulty. Control policies and vision state estimators trained with ADR exhibit vastly improved sim2real transfer. For control policies, memory-augmented models trained on an ADR-generated distribution of environments show clear signs of emergent meta-learning at test time. The combination of ADR with our custom robot platform allows us to solve a Rubik’s cube with a humanoid robot hand, which involves both control and state estimation problems. Videos summarizing our results are available: https://openai.com/blog/solving-rubiks-cube/
+
+**Proposed approach**:
+
+Two tasks:
+- block reorientation task
+- task of solving a Rubik’s cube
+    - rotation of a single face
+
+Automatic Domain Randomization:
+- train the vision models (supervised learning)
+- and policy (reinforcement learning)
+- in ADR the distribution ranges are defined automatically and allowed to change
+
+
+- **Method(s) for evaluating approach**
+
+**Contributions**:
+
+- a novel algorithm, which we call automatic domain randomization (ADR)
+
+**Conclusions**
+
+**Results**:
+
+
+**Challenges**:
+
+- learning requires vast amount of training data, which is hard and expensive to acquire on a physical system.
+- sim2real transfer problem, simulation does not capture the environment or the robot accurately in every detail
+- significantly more dexterity and precision for manipulating the Rubik’s cube
+
+- **Personal Notes**
+    - **Relevance**
+    - **Benefits**
+    - **Discussion compared to other methods**
+    - **Open-ended research questions**
+
+---
+### Efficient multitask learning with an embodied predictive model for door opening and entry with whole-body control
+
+**Authors**: Hiroshi Ito, Kenjiro Yamamoto, Hiroki Mori, And Tetsuya Ogata
+
+**Keywords**: 
+
+**Abstract**: Robots need robust models to effectively perform tasks that humans do on a daily basis. These models often require substantial developmental costs to maintain because they need to be adjusted and adapted over time. Deep reinforcement learning is a powerful approach for acquiring complex real-world models because there is no need for a human to design the model manually. Furthermore, a robot can establish new motions and optimal trajectories that may not have been considered by a human. However, the cost of learning is an issue because it requires a huge amount of trial and error in the real world. Here, we report a method for realizing complicated tasks in the real world with low design and teaching costs based on the principle of prediction error minimization. We devised a module integration method by introducing a mechanism that switches modules based on the prediction error of multiple modules. The robot generates appropriate motions according to the door’s position, color, and pattern with a low teaching cost. We also show that by calculating the prediction error of each module in real time, it is possible to execute a sequence of tasks (opening door outward and passing through) by linking multiple modules and responding to sudden changes in the situation and operating procedures. The experimental results show that the method is effective at enabling a robot to operate autonomously in the real world in response to changes in the environment.
+
+**Proposed approach**:
+
+- propose a method for realizing complex and varied motions with a real robot that is easily scalable and that can combine multiple modules appropriately depending on the situation.
+    - Each module calculates the prediction error (certainty) of high-dimensional data for the current situation in real time, and the module with the lowest error is automatically executed.
+- At runtime, the robot predicts near-future sensory and motor information in real time on the basis of visual and behavioral time series information.
+    - The retractor function of the trained RNN model performs perceptual inference (the fusion of the predicted sensory and current sensory inputs) and active inference (behavioral adjustment)
+- introducing multiple DPL modules and a mechanism for switching between them by the prediction error
+
+- DPL modules for **outwardopening** doors:
+    - approaching, 
+    - opening, and 
+    - passing through a door
+
+- automatically switching between multiple modules on the basis of certainty
+
+- with the use of a Multiple Timescale Recurrent Neural Network (MTRNN) the "Predictor" neural network proposes the layer with the fastest time constant (fast context) learns motor primitives, and the layer with the slowest time constant (Cs: slow context) learns combinations (sequences) of motion primitives.
+
+**Method(s) for evaluating approach**:
+
+- Success rate of opening a door
+    - To evaluate the robustness of the system we experimented with different colors of door handles but keeping the same shape, it can be observed that the color of the handle affects the success rate since in the presence of a white handle that had not been seen during training the success rate dropped drastically to 1.5% on average for all the positions of the test grid.
+
+**Contributions**
+
+- By teaching a motion 108 times using teleoperation and learning modules:
+    - by interpolating, the robot can open doors in unfamiliar positions with an average success rate of 96.8%
+    - the results of an internal state analysis of the module using principal components analysis (PCA) show that motion was structured according to the position of the door handle.
+    - the result of visualizing the basis of the module’s motion decisions using the gradient method shows that the robot generated motion by focusing only on the door handle.
+
+- the proposed method can adaptively select modules depending on the situation
+    
+
+**Conclusions**
+
+- that the robot could generate a series of motions by sequentially calculating the certainty of each module and switching the motions.
+
+**Results**
+
+- We tried the door-opening motion 10 times at each position, a total of 250 times,
+- a 5x5 grid was defined where each position is separated 2.5-cm from its corresponding neighbors, the robot was trained to open the door in specific positions of the grid, and it can be seen that the robot successfully opened the door in all positions with an average 96.8% (including the positions in which it was not trained).
+    - “Success” in this test was defined as the robot grasping the door handle and pushing the door open.
+- The robot rarely failed to open the door if the door handle was the same shape and color as that during training.
+
+**Challenges**:
+
+- learning from trial and error in the real world is time consuming, costly, and requires a lot of data
+- reproduce nonlinear physical phenomena such as tactile sensation, deformation, and friction, so the robot cannot fill the gap is complex.
+- this DPL, if there is a large prediction error that the robot cannot handle in real time, the state transition using RNN retraction alone cannot handle it
+- methods are performed in a simulator, and robustness and disturbance in a real environment are issues.
+
+**Personal Notes**:
+
+- the proposed method has flexibility in using modules (DLP) to represent the behavior, but how does this scale to more complex tasks where the variety of behavior is high?
+- is it the interpolation of the robot's internal state that favors the success rate to remain high in positions where it was not trained, what is the effect of the robot opening the door in positions that are outside the known values for grid interpolation?
+
+- This points to problems of robustness to changes in the environment, but the proposed methodology requires to generate training with teleoperation of the robot, producing a problem of time and scalability by the large variety of doors, majinas, colors and pratones, which makes training with the robot unfeasible.
+
+- experiments show that the change in the handle size affects the success rate dramatically, this can be explained by the fact that the position of the robot arm is estimated from a monocular image, producing a misinterpretation of the handle position since being smaller with respect to the ones used during training the model interprets it as being farther away, causing the action to fail.
+
+- is not robust in the presence of external disturbances, according to the authors, when removing the gripper from the handle the robot was not able to recover and continue with the action of opening the door, The reason for this is that the robot’s behavior depends on the context of the RNN.
+
+    - **Relevance**
+    - **Benefits**
+    - **Discussion compared to other methods**
+    - **Open-ended research questions**
+
+---
+### Deep Haptic Model Predictive Control for Robot-Assisted Dressing
+
+**Authors**: Zackory Erickson, Henry M. Clever, Greg Turk, C. Karen Liu, and Charles C. Kemp
+
+**Keywords**:
+
+**Abstract**: Robot-assisted dressing offers an opportunity to benefit the lives of many people with disabilities, such as some older adults. However, robots currently lack common sense about the physical implications of their actions on people. The physical implications of dressing are complicated by non-rigid garments, which can result in a robot indirectly applying high forces to a person’s body. We present a deep recurrent model that, when given a proposed action by the robot, predicts the forces a garment will apply to a person’s body. We also show that a robot can provide better dressing assistance by using this model with model predictive control. The predictions made by our model only use haptic and kinematic observations from the robot’s end effector, which are readily attainable. Collecting training data from real world physical human-robot interaction can be time consuming, costly, and put people at risk. Instead, we train our predictive model using data collected in an entirely self-supervised fashion from a physics-based simulation. We evaluated our approach with a PR2 robot that attempted to pull a hospital gown onto the arms of 10 human participants. With a 0.2s prediction horizon, our controller succeeded at high rates and lowered applied force while navigating the garment around a persons fist and elbow without getting caught. Shorter prediction horizons resulted in significantly reduced performance with the sleeve catching on the participants’ fists and elbows, demonstrating the value of our model’s predictions. These behaviors of mitigating catches emerged from our deep predictive model and the controller objective function, which primarily penalizes high forces.
+
+**Proposed approach**:
+
+- only haptic and kinematic measurements obtained at the robot’s end effector.
+- propose a Deep Haptic MPC approach that allows a robot to minimize the predicted force it applies to a person during robotic assistance that requires physical contact
+    - estimator: The estimator outputs the location and magnitude of forces applied to a person’s body
+    - predictor network: The predictor outputs future haptic observations given a proposed action
+    - two LSTM architecture only changes the output and input
+
+- These training data are generated in a self-supervised fashion, without a reward function or specified goal.
+    - model is trained without a predefined reward function, we can redefine the objective function without retraining the model.
+
+Simulation And Model Training:
+- dataset consists of 10,800 dressing trials generated in a simulated robot-assisted dressing environment
+- The simulator randomly selects a starting position near the arm and movement velocity for the end effector prior to each trial
+- the simulation iteratively selects a new random action for the robot’s end effector at each time step
+    - simulation records:
+        - position
+        - velocity
+        - yaw rotation (of the end effector)
+        - forces (applied at the robot’s end effector by the garment)
+        - torques (applied at the robot’s end effector by the garment)
+        - to measure the force applied to different parts of the arm define 37 taxels distributed over the entire arm.
+
+- to compensate for the precision realized in the simulation, uniformly sampled noise is introduced to the linear velocities of the end effector.
+
+The predictor (G):
+- predicts a sequence of future end effector haptic measurements based on the robot executing actions
+The estimator (F)
+- that estimates the forces
+
+advantages of a split architecture:
+- both modules can be modified independently without affecting the performance of the other module.
+- able to run these two networks at different frequencies which is beneficial during real time use
+    - estimator runs at 200hz
+    - predictor 5hz
+
+- if the robot maintains a constant action throughout the entire prediction horizon, as is the case in our work, a sequence of identical actions, can be collapsed down to a single action. Because of this, our predictor outputs a sequence of measurements given a single action, and measurement
+
+**Method(s) for evaluating approach**:
+
+- compare dressing results for various time horizons with MPC and observe emergent behaviors as the prediction horizon increases
+
+Experimental Setup:
+- Full arm dressing
+- Circumvent a catch
+
+**Contributions**:
+
+- model is able to predict the forces applied to a person’s body using only haptic and kinematic measurements
+- runs in real time on a PR2, using only the robot’s on-board CPU
+
+**Conclusions**:
+
+- prediction horizon (Hp) plays a role in the task success rate, which is drastically affected at Hp <0.05
+
+**Results**:
+
+**Challenges**:
+
+- existing robotic controllers do not take into consideration the physical implications of a robot’s actions on a person during physical human-robot interaction
+- data collection dangerous or infeasible to collect on real robotic systems that physically interact with people
+
+- **Personal Notes**
+
+- The proposed method has a success rate of 98.75% at a Prediction Horizon of 0.2 but the whole experiment is based on an important assumption, the patient's arm remains static during the entire run. Future research in this line could investigate reactive behaviors in case of movement of the patient's arm.
+- The control (in this work MPC) being decoupled from the prediction and evaluation modules allows the control to be adjusted or changed at convenience without having to re-train the model, however despite the advantage of this architecture the controller has no explicit temporal context, the only temporal context is processed in the prediction and evaluation modules.
+
+- The robot needs to be positioned approximately 15 cm from the patient's fist to start the task execution
+
+    - **Relevance**
+    - **Benefits**
+    - **Discussion compared to other methods**
+    - **Open-ended research questions**
+
+--- 
+### Deep Learning for Tactile Understanding From Visual and Haptic Data
+
+**Authors**: Yang Gao, Lisa Anne Hendricks, Katherine J. Kuchenbecker, Trevor Darrell
+
+**Keywords**:
+
+**Abstract**: Robots which interact with the physical world will benefit from a fine-grained tactile understanding of objects and surfaces. Additionally, for certain tasks, robots may need to know the haptic properties of an object before touching it. To enable better tactile understanding for robots, we propose a method of classifying surfaces with haptic adjectives (e.g., compressible or smooth) from both visual and physical interaction data. Humans typically combine visual predictions and feedback from physical interactions to accurately predict haptic properties and interact with the world. Inspired by this cognitive pattern, we propose and explore a purely visual haptic prediction model. Purely visual models enable a robot to “feel” without physical interaction. Furthermore, we demonstrate that using both visual and physical interaction signals together yields more accurate haptic classification. Our models take advantage of recent advances in deep neural networks by employing a unified approach to learning features for physical interaction and visual observations. Even though we employ little domain specific knowledge, our model still achieves better results than methods based on hand-designed features.
+
+**Proposed approach**:
+
+- propose a method of classifying surfaces with haptic adjectives (e.g., compressible or smooth) from both visual and physical interaction data
+
+**Method(s) for evaluating approach**:
+
+**Contributions**:
+
+- train a large visual model with less than 1,000 training instances.
+- learn rich features on both visual and haptic data with little domain knowledge
+
+**Conclusions**:
+
+**Results**:
+
+- demonstrate that this combination achieves higher performance than using either the haptic or visual input alone
+
+- **Challenges**
+- **Personal Notes**
+    - **Relevance**
+    - **Benefits**
+    - **Discussion compared to other methods**
+    - **Open-ended research questions**
 
 # 5 Conclusions
 Summarize you view on the state of the art in the field which you have been investigating. (half a page, times roman 11pt, single space)
@@ -1014,10 +1275,14 @@ pictured either as structured list or as tree
 
 ## 7.5 List of most important conferences
 
+- [IEEE International Conference on Robotics and Automation (ICRA)](https://www.ieee-ras.org/conferences-workshops/fully-sponsored/icra)
+- [International Conference on Intelligent Robots and Systems (IROS)](https://www.ieee-ras.org/conferences-workshops/financially-co-sponsored/iros)
+
 ## 7.6 List of most important journals and magazines
 
-
-- Science Robotics
+Journals:
+- [Science Robotics](https://www.science.org/journal/scirobotics)
+- [Frontier](https://www.frontiersin.org/journals/robotics-and-ai)
 
 ## 7.7 List of top research labs/researchers (in no particular order)
 
