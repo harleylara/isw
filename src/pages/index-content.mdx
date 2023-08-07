@@ -2,6 +2,7 @@
 title: 'Deep Learning in the context of robotics'
 ---
 
+
 # 1 Abstract
 
 Brief description of your task and how you went about to solve it.
@@ -137,7 +138,7 @@ My template
 - Proximal Policy Optimization (PPO) algorithm
 
 - Batch size "B" determinado por: B = n_robots * n_steps 
-    - n_steps: >25, fewer make the algorithm struggles to converge to a optimal solution.
+    - n_steps: more than 25, fewer make the algorithm struggles to converge to a optimal solution.
 - maximum episode length before reset: 20s
 - mini-batch size: they found that having mini-batch sizes much larger than what is usually considered best practice is beneficial for our massively parallel use case.
 - The reward policy (check tree):
@@ -376,12 +377,12 @@ Sim-to-Real Transfer:
     - Regularization for Safe Behaviors
 
 - System identification:
-    - For simplicity, we chose a position controlled actuator model with torque feedback and with only damping (1084 Nm¹radsº), armature (0045 kg m2), friction (0.03), maximum torque (41 N m), and proportional gain (211 Nrad) as free parameters.
+    - For simplicity, we chose a position controlled actuator model with torque feedback and with only damping (1084 Nm/rads), armature (0045 kg m2), friction (0.03), maximum torque (41 N m), and proportional gain (211 Nrad) as free parameters.
 
 - Domain Randomization and Perturbations:
     - they randomized the floor friction (05 to 1 0)
-    - joint angular offsets (29°)
-    - varied the orientation (up to 2°)
+    - joint angular offsets (29deg)
+    - varied the orientation (up to 2deg)
     - position (up to 5 mm) of the IMU 
     - attached a random external mass (up to 05 kg) to a randomly chosen location on the robot torso. 
     - random time delays (10 ms to 50 ms) to the observations to emulate latency in the control loop.
@@ -603,7 +604,7 @@ C. goal-conditioned dual-action
 - Task is decomposed in multiples subtasks (check table II)
 
 D. Model Architecture:
-- Gaze predictor: the image is resized to a (320 × 180 × 6) with a predicted coordinate of the gaze, producing a Foveated stereo image.
+- Gaze predictor: the image is resized to a (320 x 180 x 6) with a predicted coordinate of the gaze, producing a Foveated stereo image.
     - robot chooses a stereo gaze coordinate which maximizes the probability of the GMM Gaussian mixture model (
     - A series of a convolutional layers
 
@@ -731,7 +732,7 @@ Training Curricula:
 
 **Results**:
 
-- final system can learn room cleaning skills in a number of different room configurations in ∼ 40 hours directly in the real world.
+- final system can learn room cleaning skills in a number of different room configurations in aprox. 40 hours directly in the real world.
 
 **Challenges**:
 
@@ -1192,7 +1193,7 @@ Experimental Setup:
 
 **Conclusions**:
 
-- prediction horizon (Hp) plays a role in the task success rate, which is drastically affected at Hp <0.05
+- prediction horizon (Hp) plays a role in the task success rate, which is drastically affected at Hp < 0.05
 
 **Results**:
 
@@ -1225,6 +1226,22 @@ Experimental Setup:
 **Proposed approach**:
 
 - propose a method of classifying surfaces with haptic adjectives (e.g., compressible or smooth) from both visual and physical interaction data
+
+- haptic signal includes 32 haptic measurements
+
+Haptic CNN Model for classification:
+- initial classification models are trained using logistic loss.
+- hinge-loss obtains similar or slightly better results for all models
+
+Haptic LSTM Model: natural fit for understanding haptic time-series signals
+- consists of 10 recurrent units, and is followed by a fully connected layer with 10 outputs
+- Though stacking LSTMs generally leads to better results, this led to performance degradation for haptic classification.
+
+Visual CNN Model: using transfer learning from a CNN that is fine-tuned on the Materials in Context Database (MINC)
+- find that placing an average-pooling layer and L2 normalization layer after the MINC-CNN and before a loss layer yields best results
+
+Multimodal Learning:
+
 
 **Method(s) for evaluating approach**:
 
